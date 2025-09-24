@@ -30,3 +30,13 @@ Useful links
 - App Router guide: https://nextjs.org/docs/app
 
 Happy hacking!
+
+Vercel Deploy
+
+To enable automatic deployments to Vercel when pushing to `main`, add the following repository secrets in your GitHub repo settings:
+
+- `VERCEL_TOKEN` — your Vercel personal token (with deploy permissions)
+- `VERCEL_ORG_ID` — your Vercel organization ID
+- `VERCEL_PROJECT_ID` — your Vercel project ID
+
+Once those are set, pushes to `main` will trigger the `.github/workflows/vercel-deploy.yml` workflow which installs dependencies, builds the app, and deploys to Vercel (production).

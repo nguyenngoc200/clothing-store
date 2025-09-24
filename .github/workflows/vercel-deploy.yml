@@ -1,0 +1,62 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches:
+      - main # or your deployment branch
+  workflow_dispatch: {}
+
+permissions:
+  contents: write # Allow pushing back to this repository
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # to allow rewriting history if needed
+          persist-credentials: true
+
+      - name: Set standard Git user info
+        run: |
+          git config --global user.name "nguyenngoc200"
+          git config --global user.email "anh1922000@gmail.com"
+
+      - name: Amend last commit author (optional)
+        id: amend
+        run: |
+          # Avoid infinite loop: if last commit already from the deployment user, skip amend
+          last_email=$(git log -1 --pretty=format:'%ae')
+          echo "Last commit author email: $last_email"
+          if [ "$last_email" = "anh1922000@gmail.com" ]; then
+            echo "Skipping amend; already from deployment user"
+            echo "amended=false" >> $GITHUB_OUTPUT
+          else
+            git commit --amend --reset-author --no-edit || echo "No changes to amend"
+            echo "amended=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Push amended commit back
+        if: steps.amend.outputs.amended == 'true'
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git
+          git push --force
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build --if-present
+
+      - name: Deploy to Vercel
+        run: npx vercel --prod --token "${{ secrets.VERCEL_TOKEN }}" --confirm
