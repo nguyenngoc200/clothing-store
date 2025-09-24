@@ -19,12 +19,27 @@ jobs:
           fetch-depth: 0 # to allow rewriting history if needed
           persist-credentials: true
 
+      - name: Check triggering commit author
+        id: check
+        run: |
+          # get the author email of the HEAD commit
+          last_email=$(git log -1 --pretty=format:'%ae')
+          echo "Last commit author email: $last_email"
+          # set skip=true when the commit is authored by the deployment user to avoid retrigger loop
+          if [ "$last_email" = "anh1922000@gmail.com" ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Set standard Git user info
+        if: steps.check.outputs.skip != 'true'
         run: |
           git config --global user.name "nguyenngoc200"
           git config --global user.email "anh1922000@gmail.com"
 
       - name: Amend last commit author (optional)
+        if: steps.check.outputs.skip != 'true'
         id: amend
         run: |
           # Avoid infinite loop: if last commit already from the deployment user, skip amend
@@ -39,7 +54,7 @@ jobs:
           fi
 
       - name: Push amended commit back
-        if: steps.amend.outputs.amended == 'true'
+        if: steps.check.outputs.skip != 'true' && steps.amend.outputs.amended == 'true'
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -47,16 +62,20 @@ jobs:
           git push --force
 
       - name: Setup Node.js
+        if: steps.check.outputs.skip != 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
+        if: steps.check.outputs.skip != 'true'
         run: npm ci
 
       - name: Build
+        if: steps.check.outputs.skip != 'true'
         run: npm run build --if-present
 
       - name: Deploy to Vercel
+        if: steps.check.outputs.skip != 'true'
         run: npx vercel --prod --token "${{ secrets.VERCEL_TOKEN }}" --confirm
