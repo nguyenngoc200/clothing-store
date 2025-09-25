@@ -37,8 +37,8 @@ jobs:
 
       - name: Set standard Git user info
         run: |
-          git config --global user.name "Production Deployment"
-          git config --global user.email "admin@lumines.io"
+          git config --global user.name "nguyenngoc200"
+          git config --global user.email "anh1922000@gmail.com"
 
       - name: Amend last commit author (optional)
         run: |
