@@ -9,7 +9,9 @@ let _chalk = null;
 try {
   const chalkMod = require('chalk');
   _chalk = chalkMod && (chalkMod.default ?? chalkMod);
-} catch (e) {
+} catch (err) {
+  // If chalk isn't available just fallback to plain text. Log the error to help debugging.
+  console.debug('chalk load failed:', err);
   _chalk = null;
 }
 

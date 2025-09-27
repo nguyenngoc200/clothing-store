@@ -4,7 +4,10 @@ import React from 'react';
 export default function LoginPage() {
   const [email, setEmail] = React.useState('');
 
-  async function handleLogin(e: React.FormEvent) {}
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    // TODO: implement magic link / login flow
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
