@@ -1,15 +1,35 @@
-import Header from '@/components/Header';
-import Sidebar from '@/components/Sidebar';
-import { SidebarProvider } from '@/components/ui/sidebar';
+import { User } from '@supabase/supabase-js';
+import { notFound } from 'next/navigation';
 
-export default function PrivateLayout({ children }: { children: React.ReactNode }) {
+import HeaderAdmin from '@/components/admin/HeaderAdmin';
+import Sidebar from '@/components/sidebar/Sidebar';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { getUserServer } from '@/lib/supabase/getUserServer';
+import { EInternalRole } from '@/types/ERole';
+import { TProfile } from '@/types/TProfile';
+
+export default async function PrivateLayout({ children }: { children: React.ReactNode }) {
+  const { user, profile } = await getUserServer();
+
+  // only super-admins can access this layout
+  const profileRoleRaw = profile && (profile as TProfile).internal_staff_role;
+
+  const userRole = (user as User | undefined)?.role;
+
+  const isSuperAdmin =
+    profileRoleRaw === EInternalRole.SuperAdmin || userRole === EInternalRole.SuperAdmin;
+
+  if (!user || !isSuperAdmin) {
+    return notFound();
+  }
+
   return (
     <div className="flex flex-row">
       <SidebarProvider>
-        <Sidebar />
+        <Sidebar user={user} />
 
         <div className="flex-1 min-h-screen flex flex-col">
-          <Header />
+          <HeaderAdmin user={user} />
           <main className="flex-1 p-6">{children}</main>
         </div>
       </SidebarProvider>
