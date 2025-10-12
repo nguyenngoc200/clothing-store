@@ -1,0 +1,81 @@
+'use client';
+
+import type { User } from '@supabase/supabase-js';
+
+import Logo from '@/components/Logo';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetFooter, SheetHeader } from '@/components/ui/sheet';
+import type { HeaderMenuItem } from '@/constants/header';
+import { ROUTES } from '@/constants/routes';
+import { Power } from 'lucide-react';
+
+type Props = {
+  items: HeaderMenuItem[];
+  user: User | null;
+  menuOpen: boolean;
+  setMenuOpen: (open: boolean) => void;
+  onSignOut: () => Promise<void>;
+};
+
+export default function MobileMenu({ items, user, menuOpen, setMenuOpen, onSignOut }: Props) {
+  return (
+    <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+      <SheetContent side="left" className="p-0 gap-0">
+        <SheetHeader className="p-0 border-b border-foreground/20 mx-4">
+          <div className="flex items-center justify-center w-full">
+            <Logo alt="Logo" href={ROUTES.HOME} width={60} height={60} />
+          </div>
+        </SheetHeader>
+
+        <div className="p-4 flex flex-col h-full">
+          <nav className="flex flex-col gap-2">
+            {items.map((item) => (
+              <a
+                key={item.title}
+                href={item.url}
+                className="flex items-center gap-3 rounded-md p-2 hover:bg-slate-100"
+                onClick={() => setMenuOpen(false)}
+              >
+                <item.icon />
+                <span>{item.title}</span>
+              </a>
+            ))}
+          </nav>
+
+          <SheetFooter className="px-2 py-4 border-t border-foreground/20">
+            {user ? (
+              <div className="flex items-center justify-between gap-4 w-full">
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">{user.email}</span>
+                  <span className="text-xs text-slate-500">Member</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onSignOut();
+                    }}
+                    aria-label="Đăng xuất"
+                    className="p-2"
+                  >
+                    <Power className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <a
+                href={ROUTES.LOGIN}
+                className="block w-full text-center rounded-md p-2 bg-primary text-white"
+                onClick={() => setMenuOpen(false)}
+              >
+                Đăng nhập
+              </a>
+            )}
+          </SheetFooter>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
