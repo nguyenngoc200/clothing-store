@@ -1,4 +1,4 @@
 export enum EInternalRole {
-  SuperAdmin = 'super-admin',
-  CustomerSupport = 'customer-support',
+  SuperAdmin = 'super_admin',
+  CustomerSupport = 'customer_support',
 }
