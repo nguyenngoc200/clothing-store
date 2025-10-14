@@ -12,7 +12,9 @@ export default async function PublicLayout({ children }: { children: React.React
       <main>{children}</main>
 
       <footer className="border-t py-6 mt-12">
-        <div className="max-w-6xl mx-auto text-sm text-muted-foreground">© Quinn Store 2025</div>
+        <div className="max-w-6xl mx-auto text-sm text-muted-foreground">
+          © Quinn & BUIDOI 2025
+        </div>
       </footer>
     </div>
   );

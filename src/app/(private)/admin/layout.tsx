@@ -30,7 +30,7 @@ export default async function PrivateLayout({ children }: { children: React.Reac
 
         <div className="flex-1 min-h-screen flex flex-col">
           <HeaderAdmin user={user} />
-          <main className="flex-1 p-6">{children}</main>
+          <main className="flex-1 p-0 py-4 sm:py-0 sm:p-6">{children}</main>
         </div>
       </SidebarProvider>
     </div>
