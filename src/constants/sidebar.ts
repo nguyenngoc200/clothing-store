@@ -1,30 +1,49 @@
-import { Calendar, Home, Inbox, Search, Settings } from 'lucide-react';
+import {
+  LayoutDashboard,
+  UsersRound,
+  FolderTree,
+  Tag,
+  Package,
+  ShoppingCart,
+  SlidersHorizontal,
+} from 'lucide-react';
 
 export const SIDEBAR_ITEMS = [
   {
-    title: 'Home',
-    url: '#',
-    icon: Home,
+    title: 'Bảng điều khiển',
+    url: '/admin',
+    icon: LayoutDashboard,
   },
   {
-    title: 'Inbox',
-    url: '#',
-    icon: Inbox,
+    title: 'Khách hàng',
+    url: '/admin/customers',
+    icon: UsersRound,
   },
   {
-    title: 'Calendar',
-    url: '#',
-    icon: Calendar,
+    title: 'Danh mục',
+    url: '/admin/categories',
+    icon: FolderTree,
   },
   {
-    title: 'Search',
-    url: '#',
-    icon: Search,
+    title: 'Giảm giá',
+    url: '/admin/discounts',
+    icon: Tag,
   },
   {
-    title: 'Settings',
-    url: '#',
-    icon: Settings,
+    title: 'Sản phẩm',
+    url: '/admin/products',
+    icon: Package,
+  },
+
+  {
+    title: 'Đơn hàng',
+    url: '/admin/orders',
+    icon: ShoppingCart,
+  },
+  {
+    title: 'Cài đặt',
+    url: '/admin/settings',
+    icon: SlidersHorizontal,
   },
 ];
 
