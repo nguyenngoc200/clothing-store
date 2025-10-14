@@ -5,12 +5,22 @@ import { useEffect, useState } from 'react';
 
 import Logo from '@/components/Logo';
 import { Search, Bell, Menu } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 import { HEADER_MENU_ITEMS, type HeaderMenuItem } from '@/constants/header';
 import { ROUTES } from '@/constants/routes';
 import { Button } from '@/components/ui/button';
 import MobileMenu from '@/components/header/MobileMenu';
 import { createClient } from '@/lib/supabase/client';
 import AuthService from '@/services/auth';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Input } from '../ui/input';
 
 export default function Header({ serverUser }: { serverUser?: User | null }) {
   const [user, setUser] = useState<User | null>(serverUser ?? null);
@@ -62,7 +72,7 @@ export default function Header({ serverUser }: { serverUser?: User | null }) {
               <Search size={16} className="text-slate-400" />
             </span>
 
-            <input
+            <Input
               aria-label="Search"
               placeholder="Tìm kiếm..."
               className="block w-full pl-10 pr-3 py-2 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#070707] text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400"
@@ -75,20 +85,60 @@ export default function Header({ serverUser }: { serverUser?: User | null }) {
           <Button variant="ghost" size="sm" className="relative p-2">
             <Bell size={18} className="text-slate-700 dark:text-slate-200" />
             <span className="absolute -top-0.5 -right-0.5 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-medium leading-none text-white bg-red-500 rounded-full">
-              3
+              0
             </span>
           </Button>
 
           <div className="flex items-center gap-3">
             {user ? (
               <>
-                <div className="flex flex-col text-right">
-                  <span className="text-sm font-medium">{user.email}</span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">Member</span>
+                {/* Avatar + dropdown */}
+                <div className="flex items-center gap-2">
+                  {/* Use Radix dropdown component already available */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="w-10 h-10 rounded-full">
+                        {user.user_metadata?.avatar_url ? (
+                          <Image
+                            src={user.user_metadata.avatar_url}
+                            alt={user.email || 'avatar'}
+                            width={40}
+                            height={40}
+                            className="rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-sm font-medium text-slate-700">
+                            {user.email ? user.email.charAt(0).toUpperCase() : '?'}
+                          </div>
+                        )}
+                      </Button>
+                    </DropdownMenuTrigger>
+
+                    <DropdownMenuContent align="end">
+                      <div className="px-2 py-2">
+                        <div className="mb-2">
+                          <div className="text-sm font-medium">{user.email}</div>
+                          <div className="text-xs text-slate-500">Member</div>
+                        </div>
+                        <DropdownMenuItem asChild>
+                          <Link href="/admin" className="block w-full cursor-pointer">
+                            Go admin
+                          </Link>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuSeparator />
+
+                        <DropdownMenuItem
+                          onSelect={handleSignOut}
+                          variant="destructive"
+                          className="cursor-pointer"
+                        >
+                          Đăng xuất
+                        </DropdownMenuItem>
+                      </div>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-                <Button variant="destructive" onClick={handleSignOut}>
-                  Đăng xuất
-                </Button>
               </>
             ) : (
               <>
@@ -97,7 +147,7 @@ export default function Header({ serverUser }: { serverUser?: User | null }) {
                   <span className="text-xs text-slate-500 dark:text-slate-400">Đăng nhập</span>
                 </div>
                 <Button asChild>
-                  <a href={ROUTES.LOGIN}>Đăng nhập</a>
+                  <Link href={ROUTES.LOGIN}>Đăng nhập</Link>
                 </Button>
               </>
             )}
