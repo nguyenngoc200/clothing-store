@@ -68,7 +68,7 @@ export default function Sidebar(props: SidebarProps) {
 
       <SidebarContent className="bg-white text-black flex flex-col justify-between">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-sm mb-2">Application</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-sm mb-2">Ứng dụng</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {
@@ -80,8 +80,8 @@ export default function Sidebar(props: SidebarProps) {
                       isActive={isActive}
                       className={cn(
                         'transition-all duration-200 ease-in-out',
-                        'hover:bg-slate-100 hover:text-slate-900',
-                        isActive && 'bg-slate-900 text-white hover:bg-slate-800 hover:text-white',
+                        'hover:bg-primary/20 hover:text-slate-900',
+                        isActive && 'bg-primary text-white hover:bg-primary/80 hover:text-white',
                       )}
                     >
                       <a href={item.url}>
