@@ -113,3 +113,19 @@
   z-index: 20;
   transition: background-color 200ms ease;
 }
+
+/* The dot effect appears sequentially.: . -> .. -> ... */
+@keyframes dotAppear {
+  0% {
+    opacity: 0;
+  }
+  33.33% {
+    opacity: 1;
+  }
+  66.66% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
