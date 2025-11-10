@@ -57,7 +57,7 @@ export function HeroCarousel({
             {buttonText && (
               <Link
                 href="/products"
-                className="inline-flex items-center gap-2 bg-white text-black px-6 py-3 rounded-sm font-semibold hover:bg-neutral-100 transition"
+                className="hidden sm:inline-flex  items-center gap-2 bg-white text-black px-6 py-3 rounded-sm font-semibold hover:bg-neutral-100 transition"
               >
                 {buttonText}
                 <span aria-hidden="true">→</span>
@@ -103,7 +103,7 @@ export function HeroCarousel({
                     {buttonText && (
                       <Link
                         href="/products"
-                        className="inline-flex items-center gap-2 bg-white text-black px-6 py-3 rounded-sm font-semibold hover:bg-neutral-100 transition"
+                        className="hidden sm:inline-flex items-center gap-2 bg-white text-black px-6 py-3 rounded-sm font-semibold hover:bg-neutral-100 transition"
                       >
                         {buttonText}
                         <span aria-hidden="true">→</span>
