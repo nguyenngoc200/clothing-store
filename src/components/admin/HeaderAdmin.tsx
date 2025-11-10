@@ -27,7 +27,7 @@ export default function HeaderAdmin(props: HeaderAdminProps) {
   };
 
   return (
-    <header className="app-header w-full border-b border-slate-200/60 dark:border-slate-800/60 bg-white/50 dark:bg-[#0b0b0b]/50 backdrop-blur">
+    <header className="app-header border top-0 z-30 w-full border-b border-slate-200/60 dark:border-slate-800/60 bg-white/50 dark:bg-[#0b0b0b]/50 backdrop-blur">
       <div className="w-full flex items-center justify-between gap-4 px-4 h-14">
         {/* Left: search */}
         <div className="flex items-center gap-2">

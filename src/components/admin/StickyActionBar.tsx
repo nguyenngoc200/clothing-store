@@ -21,13 +21,7 @@ export function StickyActionBar(props: StickyActionBarProps) {
             <span className="font-medium">Bạn có thay đổi chưa lưu</span>
           </div>
           <div className="flex gap-3 w-full sm:w-auto">
-            <Button
-              type="button"
-              onClick={onCancel}
-              size="sm"
-              variant="white"
-              className="flex-1 sm:flex-none text-neutral-700 bg-neutral-100 hover:bg-neutral-200"
-            >
+            <Button type="button" onClick={onCancel} size="sm" variant="secondary">
               Hủy
             </Button>
 

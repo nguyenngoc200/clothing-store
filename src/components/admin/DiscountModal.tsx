@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Controller } from 'react-hook-form';
 import {
   Dialog,
   DialogContent,
@@ -32,7 +33,47 @@ export default function DiscountModal({
   editingDiscount,
   loading,
 }: Props) {
-  const { control } = form;
+  const { control, setValue, getValues } = form;
+
+  // selectedType controls which input is active. We render two checkboxes but only
+  // one can be selected at a time (mutually exclusive). When user chooses percent
+  // we clear amount, and vice-versa.
+  const [selectedType, setSelectedType] = useState<'percent' | 'amount' | null>(null);
+
+  // When modal opens for editing or creation, pick the correct selectedType.
+  // Prefer the explicit `editingDiscount` prop (if provided) because the parent
+  // may reset the form asynchronously. Fall back to form values otherwise.
+  useEffect(() => {
+    if (editingDiscount) {
+      const ed = editingDiscount as {
+        discount_percent?: number | null;
+        discount_amount?: number | null;
+      };
+      // We're editing an existing discount — derive selectedType from the discount
+      // record directly so the UI reflects edit-mode immediately.
+      if (typeof ed.discount_percent === 'number' && !isNaN(ed.discount_percent)) {
+        setSelectedType('percent');
+        return;
+      }
+      if (typeof ed.discount_amount === 'number' && !isNaN(ed.discount_amount)) {
+        setSelectedType('amount');
+        return;
+      }
+      setSelectedType(null);
+      return;
+    }
+
+    // Creation mode or no explicit editingDiscount provided: read current form values.
+    const vals = getValues();
+    if (typeof vals.discount_percent === 'number' && !isNaN(vals.discount_percent)) {
+      setSelectedType('percent');
+    } else if (typeof vals.discount_amount === 'number' && !isNaN(vals.discount_amount)) {
+      setSelectedType('amount');
+    } else {
+      setSelectedType(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editingDiscount, open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -68,6 +109,99 @@ export default function DiscountModal({
               placeholder="Nhập mô tả"
               rows={3}
             />
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-4">
+                {/* Show percent checkbox unless amount is already selected (hide the other type)
+                    When neither is selected (creating new), both checkboxes are shown. */}
+                {selectedType !== 'amount' && (
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedType === 'percent'}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedType('percent');
+                          // clear amount when selecting percent
+                          setValue('discount_amount', undefined);
+                        } else {
+                          setSelectedType(null);
+                          setValue('discount_percent', undefined);
+                        }
+                      }}
+                    />
+                    <span>Giảm theo %</span>
+                  </label>
+                )}
+
+                {selectedType !== 'percent' && (
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedType === 'amount'}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedType('amount');
+                          setValue('discount_percent', undefined);
+                        } else {
+                          setSelectedType(null);
+                          setValue('discount_amount', undefined);
+                        }
+                      }}
+                    />
+                    <span>Giảm theo giá (VND)</span>
+                  </label>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <DynamicFormField
+                  control={control}
+                  name="discount_percent"
+                  label="Phần trăm (%)"
+                  type="input"
+                  inputType="number"
+                  placeholder="Ví dụ: 10%"
+                  disabled={selectedType !== 'percent'}
+                />
+
+                <div>
+                  <label className="block text-sm font-medium">Số tiền (VND)</label>
+                  <Controller
+                    control={control}
+                    name="discount_amount"
+                    render={({ field }) => {
+                      const formatter = new Intl.NumberFormat('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND',
+                        maximumFractionDigits: 0,
+                      });
+
+                      const display =
+                        typeof field.value === 'number' && !isNaN(field.value)
+                          ? formatter.format(field.value)
+                          : '';
+
+                      return (
+                        <input
+                          type="text"
+                          value={display}
+                          onChange={(e) => {
+                            // extract digits only and store numeric value
+                            const digits = e.target.value.replace(/[^0-9]/g, '');
+                            const num = digits === '' ? undefined : Number(digits);
+                            field.onChange(num);
+                          }}
+                          disabled={selectedType !== 'amount'}
+                          className="w-full border border-gray-300 rounded px-3 py-2"
+                          placeholder="Ví dụ: 10.000 đ"
+                        />
+                      );
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
 
             <DialogFooter>
               <Button
