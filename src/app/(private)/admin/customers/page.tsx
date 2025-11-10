@@ -26,12 +26,11 @@ export default function CustomersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
 
+  const emptyDefaults: CustomerFormData = { full_name: '', phone_number: '' };
+
   const form = useForm<CustomerFormData>({
     resolver: zodResolver(customerSchema),
-    defaultValues: {
-      full_name: '',
-      phone_number: '',
-    },
+    defaultValues: emptyDefaults,
   });
 
   const onSubmit = async (data: CustomerFormData) => {
@@ -120,7 +119,12 @@ export default function CustomersPage() {
         actions={[
           {
             label: 'Thêm Khách hàng',
-            onClick: () => setIsModalOpen(true),
+            onClick: () => {
+              // prepare modal for creating a new customer
+              setEditingCustomer(null);
+              form.reset(emptyDefaults);
+              setIsModalOpen(true);
+            },
           },
         ]}
         rowActions={(customer) => [
@@ -150,7 +154,13 @@ export default function CustomersPage() {
 
       <CustomerModal
         open={isModalOpen}
-        onOpenChange={setIsModalOpen}
+        onOpenChange={(open: boolean) => {
+          setIsModalOpen(open);
+          if (!open) {
+            setEditingCustomer(null);
+            form.reset(emptyDefaults);
+          }
+        }}
         form={form}
         onSubmit={onSubmit}
         editingCustomer={editingCustomer}
