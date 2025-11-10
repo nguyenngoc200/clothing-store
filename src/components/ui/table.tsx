@@ -58,7 +58,7 @@ export function DataTable<T>({
     <div>
       {/* Header */}
       {(title || description || actions) && (
-        <div className="flex justify-between items-center mb-6">
+        <div className="block sm:flex justify-between items-center mb-6">
           <div>
             {title && <h1 className="text-3xl font-bold">{title}</h1>}
             {description && <p className="text-gray-600 mt-1">{description}</p>}
@@ -66,7 +66,12 @@ export function DataTable<T>({
           {actions && actions.length > 0 && (
             <div className="flex gap-2">
               {actions.map((action, index) => (
-                <Button key={index} onClick={action.onClick} variant={action.variant || 'default'}>
+                <Button
+                  className="mt-3 sm:mt-0"
+                  key={index}
+                  onClick={action.onClick}
+                  variant={action.variant || 'default'}
+                >
                   {action.label}
                 </Button>
               ))}
@@ -104,18 +109,28 @@ export function DataTable<T>({
                   <tr>
                     <td
                       colSpan={columns.length + (rowActions ? 1 : 0)}
-                      className="px-6 py-8 text-center text-gray-500 "
+                      className="px-6 text-gray-500"
                     >
-                      <LoadingDots />
+                      <div
+                        className="w-full flex items-center justify-center"
+                        style={{ minHeight: 200 }}
+                      >
+                        <LoadingDots />
+                      </div>
                     </td>
                   </tr>
                 ) : data.length === 0 ? (
                   <tr>
                     <td
                       colSpan={columns.length + (rowActions ? 1 : 0)}
-                      className="px-6 py-8 text-center text-gray-500"
+                      className="px-6 text-gray-500"
                     >
-                      {emptyMessage}
+                      <div
+                        className="w-full flex items-center justify-center"
+                        style={{ minHeight: 200 }}
+                      >
+                        {emptyMessage}
+                      </div>
                     </td>
                   </tr>
                 ) : (
