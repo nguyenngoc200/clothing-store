@@ -1,11 +1,12 @@
 import type { Order, OrderPayload, ApiResponse, ApiListResponse } from '@/types/database';
+import PATHS from '@/constants/paths';
 
-const BASE_URL = '/api/orders';
+const BASE_URL = `${PATHS.ORDERS}`;
 
 export const orderService = {
   // Get all orders
   async getAll(customerId?: string): Promise<ApiListResponse<Order>> {
-    const url = customerId ? `${BASE_URL}?customer_id=${customerId}` : BASE_URL;
+    const url = PATHS.ORDERS_BY_CUSTOMER(customerId);
     const response = await fetch(url);
     const payload = await response.json();
 
@@ -22,7 +23,7 @@ export const orderService = {
 
   // Get a single order by ID
   async getById(id: string): Promise<ApiResponse<Order>> {
-    const response = await fetch(`${BASE_URL}/${id}`);
+    const response = await fetch(PATHS.ORDER_BY_ID(id));
     return response.json();
   },
 
@@ -40,7 +41,7 @@ export const orderService = {
 
   // Update an order
   async update(id: string, payload: OrderPayload): Promise<ApiResponse<Order>> {
-    const response = await fetch(`${BASE_URL}/${id}`, {
+    const response = await fetch(PATHS.ORDER_BY_ID(id), {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -52,7 +53,7 @@ export const orderService = {
 
   // Delete an order (soft delete)
   async delete(id: string): Promise<ApiResponse<Order>> {
-    const response = await fetch(`${BASE_URL}/${id}`, {
+    const response = await fetch(PATHS.ORDER_BY_ID(id), {
       method: 'DELETE',
     });
     return response.json();
