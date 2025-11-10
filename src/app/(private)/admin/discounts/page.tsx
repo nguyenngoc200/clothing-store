@@ -32,6 +32,8 @@ export default function DiscountsPage() {
       code: '',
       title: '',
       description: '',
+      discount_percent: undefined,
+      discount_amount: undefined,
     },
   });
 
@@ -57,6 +59,14 @@ export default function DiscountsPage() {
       code: discount.code || '',
       title: discount.title || '',
       description: discount.description || '',
+      discount_percent:
+        typeof discount.discount_percent === 'number' && !isNaN(discount.discount_percent)
+          ? discount.discount_percent
+          : undefined,
+      discount_amount:
+        typeof discount.discount_amount === 'number' && !isNaN(discount.discount_amount)
+          ? discount.discount_amount
+          : undefined,
     });
     setIsModalOpen(true);
   };
@@ -74,7 +84,13 @@ export default function DiscountsPage() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingDiscount(null);
-    form.reset({ code: '', title: '', description: '' });
+    form.reset({
+      code: '',
+      title: '',
+      description: '',
+      discount_percent: undefined,
+      discount_amount: undefined,
+    });
   };
 
   const pagination = usePagination({
@@ -102,6 +118,20 @@ export default function DiscountsPage() {
       key: 'description',
       label: 'Mô tả',
       render: (discount) => discount.description,
+    },
+    {
+      key: 'value',
+      label: 'Giảm giá',
+      render: (discount) => {
+        // show percent if present, otherwise show amount formatted as VND
+        const pct = discount.discount_percent;
+        const amt = discount.discount_amount;
+        if (typeof pct === 'number' && !isNaN(pct)) return `${pct}%`;
+        if (typeof amt === 'number' && !isNaN(amt))
+          return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amt);
+        return '-';
+      },
+      className: 'whitespace-nowrap',
     },
     {
       key: 'created_at',
