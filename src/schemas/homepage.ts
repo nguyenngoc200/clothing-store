@@ -33,7 +33,17 @@ export const shoesSchema = z.object({
   title: z.string().optional(),
   products: z.array(z.any()).optional(),
 });
-export const stylingSchema = z.array(z.string()); // Array of product IDs
+export const stylingSchema = z.union([
+  z.array(z.string()), // Array of product IDs
+  z
+    .object({
+      title: z.string().optional(),
+      url: z.string().optional(),
+      description: z.string().optional(),
+      buttonText: z.string().optional(),
+    })
+    .optional(),
+]);
 
 export const categoryItemSchema = z.object({
   label: z.string(),
@@ -70,3 +80,26 @@ export type FormSchema = z.infer<typeof formSchema>;
 export type SectionSchema = z.infer<typeof sectionSchema>;
 
 export default formSchema;
+
+// A single homepage row's data can be either the legacy { sections: [...] }
+// payload, or a per-tab Section object. Provide a schema to validate both.
+export const homepageRowDataSchema = z.array(
+  z.object({
+    tab: z.string(),
+    data: z
+      .union([
+        advertisementSchema,
+        heroSchema,
+        brandSchema,
+        iconicSchema,
+        shoesSchema,
+        stylingSchema,
+        categorySchema,
+        productsSchema,
+        whatshotSchema,
+        z.array(z.any()),
+      ])
+      .optional(),
+  }),
+);
+export type HomepageRowData = z.infer<typeof homepageRowDataSchema>;

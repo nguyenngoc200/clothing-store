@@ -34,7 +34,7 @@ export const productSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
   image: z.string().optional(),
-  purchase_price: z.number().min(0, 'Purchase price must be positive').optional(),
+  purchase_price: z.number().min(0, 'Giá nhập phải lớn hơn 0'),
   suggested: z.number().min(0, 'Suggested price must be positive').optional(),
   size: z.string().optional(),
   width: z.number().min(0, 'Width must be positive').optional(),
@@ -47,14 +47,36 @@ export const productSchema = z.object({
 export type ProductFormData = z.infer<typeof productSchema>;
 
 // Order Schema
+export const orderItemSchema = z.object({
+  product_id: z.string().min(1, 'Product is required'),
+  discount_id: z.string().optional(),
+  quantity: z.number().min(1, 'Quantity must be at least 1'),
+  unit_price: z.number().min(0, 'Unit price must be positive'),
+  total_price: z.number().min(0, 'Total price must be positive'),
+  // Price fields
+  cost_price: z.number().min(0, 'Cost price must be positive').optional(),
+  suggested_price: z.number().min(0, 'Suggested price must be positive').optional(),
+  selling_price: z.number().min(0, 'Selling price must be positive').optional(),
+  // Calculation costs (chi phí tính toán)
+  advertising_cost: z.number().min(0).optional(),
+  packaging_cost: z.number().min(0).optional(),
+  shipping_cost: z.number().min(0).optional(),
+  personnel_cost: z.number().min(0).optional(),
+  rent_cost: z.number().min(0).optional(),
+  freeship_cost: z.number().min(0).optional(),
+});
+
 export const orderSchema = z.object({
   customer_id: z.string().min(1, 'Customer is required'),
   address: z.string().min(1, 'Address is required'),
+  status: z.enum(['in_stock', 'in_transit', 'sold']).optional(),
   shipping_code: z.string().optional(),
   total_amount: z.number().min(0).optional(),
   order_date: z.string().optional(),
+  items: z.array(orderItemSchema).min(1, 'At least one product is required'),
 });
 
+export type OrderItemFormData = z.infer<typeof orderItemSchema>;
 export type OrderFormData = z.infer<typeof orderSchema>;
 
 // Order Product Schema
