@@ -26,12 +26,11 @@ export default function CategoriesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
+  const emptyDefaults: CategoryFormData = { title: '', description: '' };
+
   const form = useForm<CategoryFormData>({
     resolver: zodResolver(categorySchema),
-    defaultValues: {
-      title: '',
-      description: '',
-    },
+    defaultValues: emptyDefaults,
   });
 
   const onSubmit = async (data: CategoryFormData) => {
@@ -117,7 +116,12 @@ export default function CategoriesPage() {
         actions={[
           {
             label: 'Thêm Danh mục',
-            onClick: () => setIsModalOpen(true),
+            onClick: () => {
+              // Prepare modal for creating a new category
+              setEditingCategory(null);
+              form.reset(emptyDefaults);
+              setIsModalOpen(true);
+            },
           },
         ]}
         rowActions={(category) => [
@@ -147,7 +151,13 @@ export default function CategoriesPage() {
 
       <CategoryModal
         open={isModalOpen}
-        onOpenChange={setIsModalOpen}
+        onOpenChange={(open: boolean) => {
+          setIsModalOpen(open);
+          if (!open) {
+            setEditingCategory(null);
+            form.reset(emptyDefaults);
+          }
+        }}
         form={form}
         onSubmit={onSubmit}
         editingCategory={editingCategory}
