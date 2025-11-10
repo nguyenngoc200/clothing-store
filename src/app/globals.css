@@ -46,6 +46,19 @@
   --brown-800: #603a2b;
   --brown-900: #412619;
 
+  /* Gold (vàng logo) color scale - màu chính từ logo */
+  --gold-50: #fefbf3;
+  --gold-100: #fdf6e3;
+  --gold-200: #faecc4;
+  --gold-300: #f6dd9b;
+  --gold-400: #f0c866;
+  --gold-500: #d99f23; /* Màu chính từ logo: rgb(217, 159, 35) */
+  --gold-600: #c28a1f;
+  --gold-700: #a3721a;
+  --gold-800: #865d18;
+  --gold-900: #6f4d17;
+  --gold-950: #402a0a;
+
   /* Neutral gray scale */
   --neutral-50: #fafafb;
   --neutral-100: #f3f4f6;
@@ -81,6 +94,11 @@
   --color-border: var(--neutral-200);
   --color-input: var(--neutral-200);
   --color-ring: var(--primary-500);
+
+  /* Brand colors - Màu thương hiệu từ logo */
+  --color-brand-gold: var(--gold-500); /* rgb(217, 159, 35) */
+  --color-brand-gold-light: var(--gold-400);
+  --color-brand-gold-dark: var(--gold-600);
 
   /* =====================
      Font Families
