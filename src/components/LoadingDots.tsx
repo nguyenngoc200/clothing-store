@@ -17,7 +17,7 @@ export const LoadingDots = (props: ILoadingDotsProps) => {
     text = 'Đang tải',
     textColor = '',
     notText,
-    dotColor = 'text-current',
+    dotColor = 'text-primary',
     animationSpeed = 'fast',
   } = props;
 
