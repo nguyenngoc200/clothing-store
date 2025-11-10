@@ -47,6 +47,8 @@ export interface Discount {
   code: string | null;
   title: string | null;
   description: string | null;
+  discount_percent?: number | null;
+  discount_amount?: number | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -56,6 +58,8 @@ export interface DiscountPayload {
   code?: string;
   title?: string;
   description?: string;
+  discount_percent?: number | null;
+  discount_amount?: number | null;
 }
 
 // Product types
@@ -64,14 +68,15 @@ export interface Product {
   title: string;
   description: string | null;
   image: string | null;
-  purchase_price: number | null;
-  suggested: number | null;
+  purchase_price: number; // Required field
+  suggested: number | null; // Optional: only saved when Apply button is clicked
   size: string | null;
   width: number | null;
   height: number | null;
   color: string | null;
   category_id: string | null;
   discount_id: string | null;
+  status: 'in_stock' | 'in_transit' | 'sold' | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -81,14 +86,15 @@ export interface ProductPayload {
   title: string;
   description?: string;
   image?: string;
-  purchase_price?: number;
-  suggested?: number;
+  purchase_price: number; // Required field
+  suggested?: number; // Optional: only saved when Apply button is clicked
   size?: string;
   width?: number;
   height?: number;
   color?: string;
   category_id?: string;
   discount_id?: string;
+  status?: 'in_stock' | 'in_transit' | 'sold';
 }
 
 // Product Discount types
@@ -110,6 +116,7 @@ export interface Order {
   address: string | null;
   shipping_code: string | null;
   total_amount: number | null;
+  status: 'in_stock' | 'in_transit' | 'sold' | null;
   customer_id: string | null;
   order_date: string;
   created_at: string;
@@ -121,6 +128,7 @@ export interface OrderPayload {
   address?: string;
   shipping_code?: string;
   total_amount?: number;
+  status?: 'in_stock' | 'in_transit' | 'sold';
   customer_id?: string;
   order_date?: string;
 }
@@ -132,7 +140,11 @@ export interface OrderProduct {
   product_id: string;
   quantity: number;
   unit_price: number;
+  discount_id: string | null;
   total_price: number;
+  cost_price: number | null;
+  suggested_price: number | null;
+  selling_price: number | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -143,7 +155,11 @@ export interface OrderProductPayload {
   product_id: string;
   quantity: number;
   unit_price: number;
+  discount_id?: string | null;
   total_price: number;
+  cost_price?: number | null;
+  suggested_price?: number | null;
+  selling_price?: number | null;
 }
 
 // API Response types

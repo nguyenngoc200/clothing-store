@@ -55,3 +55,9 @@ export type Section = {
 };
 
 export default Section;
+
+export type HomepageApiPayload = {
+  tab?: string;
+  // data can be any free-form object or the legacy aggregated shape with sections
+  data?: Record<string, unknown> | { sections: Section[] };
+};
