@@ -3,7 +3,7 @@ import { ADMIN_MODULES } from '@/constants/admin';
 
 export default function AdminPage() {
   return (
-    <div className="font-sans min-h-screen w-full">
+    <div className="container mt-5 font-sans min-h-screen w-full">
       <h1 className="text-2xl font-bold mb-8">Bảng điều khiển Quản trị</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
