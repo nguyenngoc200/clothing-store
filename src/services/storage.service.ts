@@ -1,27 +1,5 @@
-/**
- * Storage service for handling file uploads and signed URLs
- */
-
-interface UploadResponse {
-  success: boolean;
-  data?: {
-    path: string;
-    publicUrl: string;
-    fileName: string;
-    size: number;
-    type: string;
-  };
-  error?: string;
-}
-
-interface SignedUrlsResponse {
-  success: boolean;
-  data?: Array<{
-    path: string;
-    signedUrl: string;
-  }>;
-  error?: string;
-}
+import PATHS from '@/constants/paths';
+import type { SignedUrlsResponse, UploadResponse } from '@/types/storage';
 
 export const storageService = {
   /**
@@ -36,7 +14,7 @@ export const storageService = {
       formData.append('file', file);
       formData.append('folder', folder);
 
-      const response = await fetch('/api/storage/upload', {
+      const response = await fetch(PATHS.STORAGE_UPLOAD, {
         method: 'POST',
         body: formData,
       });
@@ -78,7 +56,7 @@ export const storageService = {
    */
   async createSignedUrls(paths: string[], expiresIn: number = 3600): Promise<SignedUrlsResponse> {
     try {
-      const response = await fetch('/api/storage/signed-urls', {
+      const response = await fetch(PATHS.STORAGE_SIGNED_URLS, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
