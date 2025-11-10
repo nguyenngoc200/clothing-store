@@ -1,15 +1,12 @@
 import { createClient } from '@/lib/supabase/server';
-import { NextResponse } from 'next/server';
+import { ApiResponse } from '@/lib/utils/ApiResponse';
 
 export async function POST(request: Request) {
   try {
     const { paths, expiresIn = 3600 } = await request.json();
 
     if (!paths || !Array.isArray(paths) || paths.length === 0) {
-      return NextResponse.json(
-        { error: 'Invalid paths. Must be a non-empty array.' },
-        { status: 400 },
-      );
+      return ApiResponse.badRequest('Invalid paths. Must be a non-empty array.');
     }
 
     const supabase = await createClient();
@@ -20,15 +17,12 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error('Error creating signed URLs:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return ApiResponse.error({ message: error.message, error });
     }
 
-    return NextResponse.json({
-      success: true,
-      data,
-    });
+    return ApiResponse.success(data);
   } catch (error) {
     console.error('Signed URLs error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return ApiResponse.error({ message: 'Internal server error', error });
   }
 }
