@@ -34,21 +34,23 @@ export default function ProductsPage() {
     [categories],
   );
 
+  const emptyDefaults: ProductFormData = {
+    title: '',
+    description: '',
+    image: '',
+    purchase_price: 0,
+    suggested: 0,
+    size: '',
+    width: 0,
+    height: 0,
+    color: '',
+    category_id: undefined,
+    discount_id: undefined,
+  };
+
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      image: '',
-      purchase_price: 0,
-      suggested: 0,
-      size: '',
-      width: 0,
-      height: 0,
-      color: '',
-      category_id: undefined,
-      discount_id: undefined,
-    },
+    defaultValues: emptyDefaults,
   });
 
   const onSubmit = async (data: ProductFormData) => {
@@ -129,6 +131,32 @@ export default function ProductsPage() {
     return products.slice(pagination.startIndex, pagination.endIndex);
   }, [products, pagination.startIndex, pagination.endIndex]);
 
+  const getStatusLabel = (status: string | null) => {
+    switch (status) {
+      case 'in_stock':
+        return 'Còn hàng';
+      case 'in_transit':
+        return 'Đang vận chuyển';
+      case 'sold':
+        return 'Đã bán';
+      default:
+        return '-';
+    }
+  };
+
+  const getStatusColor = (status: string | null) => {
+    switch (status) {
+      case 'in_stock':
+        return 'bg-green-100 text-green-800';
+      case 'in_transit':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'sold':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   const columns: Column<Product>[] = [
     {
       key: 'image',
@@ -159,12 +187,30 @@ export default function ProductsPage() {
     {
       key: 'purchase_price',
       label: 'Giá nhập',
-      render: (product) => `₫${product.purchase_price}`,
+      render: (product) => {
+        const val = Number(product.purchase_price ?? 0);
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+      },
     },
     {
       key: 'suggested',
       label: 'Giá đề xuất',
-      render: (product) => `₫${product.suggested}`,
+      render: (product) => {
+        const val = Number(product.suggested ?? 0);
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+      },
+    },
+    {
+      key: 'status',
+      label: 'Trạng thái',
+      render: (product) => (
+        <span
+          className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(product.status)}`}
+        >
+          {getStatusLabel(product.status)}
+        </span>
+      ),
+      className: 'whitespace-nowrap',
     },
     {
       key: 'size',
@@ -201,7 +247,12 @@ export default function ProductsPage() {
         actions={[
           {
             label: 'Thêm Sản phẩm',
-            onClick: () => setIsModalOpen(true),
+            onClick: () => {
+              // Open modal for creating a new product: clear editing state and reset form
+              setEditingProduct(null);
+              form.reset(emptyDefaults);
+              setIsModalOpen(true);
+            },
           },
         ]}
         rowActions={(product) => [
@@ -231,7 +282,14 @@ export default function ProductsPage() {
 
       <ProductModal
         open={isModalOpen}
-        onOpenChange={setIsModalOpen}
+        onOpenChange={(open: boolean) => {
+          setIsModalOpen(open);
+          if (!open) {
+            // When modal is closed (click outside or Esc), clear editing state and reset form
+            setEditingProduct(null);
+            form.reset(emptyDefaults);
+          }
+        }}
         form={form}
         onSubmit={onSubmit}
         title={editingProduct ? 'Sửa Sản phẩm' : 'Thêm Sản phẩm'}
