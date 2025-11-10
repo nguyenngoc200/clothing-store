@@ -5,7 +5,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ROUTES } from '@/constants/routes';
-import AuthService from '@/services/auth';
+import AuthService from '@/services/auth.service';
 
 export default function LoginPage() {
   const [email, setEmail] = React.useState('');
