@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Image from 'next/image';
 import {
   Carousel,
   CarouselContent,
@@ -11,6 +12,10 @@ import {
 } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
 import type { Product } from '@/types/database';
+
+function hasCategory(obj: unknown): obj is Product & { category?: { title?: string } } {
+  return typeof obj === 'object' && obj !== null && 'category' in (obj as Record<string, unknown>);
+}
 
 interface ProductCarouselProps {
   products: Product[];
@@ -79,6 +84,20 @@ export function ProductCarousel({
             >
               <div className="bg-white rounded-lg overflow-hidden group cursor-pointer hover:shadow-lg transition">
                 <div className="relative aspect-square bg-neutral-100">
+                  {product.image ? (
+                    <Image
+                      src={product.image}
+                      alt={product.title || 'Product image'}
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full w-full text-neutral-400">
+                      No image
+                    </div>
+                  )}
+
                   <div className="absolute top-3 right-3 z-10">
                     <button className="w-10 h-10 rounded-full bg-white/80 hover:bg-white flex items-center justify-center">
                       <svg
@@ -99,17 +118,19 @@ export function ProductCarousel({
                 </div>
                 <div className="p-4">
                   <p className="text-xs text-neutral-500 mb-1">
-                    {product.category_id || 'Uncategorized'}
+                    {hasCategory(product) && product.category?.title
+                      ? product.category.title
+                      : product.category_id || 'Uncategorized'}
                   </p>
                   <h3 className="font-semibold text-sm mb-2 line-clamp-2">{product.title}</h3>
-                  <p className="font-bold text-base">
+                  {/* <p className="font-bold text-base">
                     {product.suggested
                       ? product.suggested.toLocaleString('vi-VN')
                       : product.purchase_price
                         ? product.purchase_price.toLocaleString('vi-VN')
                         : 'N/A'}
                     ₫
-                  </p>
+                  </p> */}
                 </div>
               </div>
             </CarouselItem>
