@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import { NextResponse } from 'next/server';
+import { ApiResponse } from '@/lib/utils/ApiResponse';
 
 export async function POST(request: Request) {
   try {
@@ -8,22 +8,19 @@ export async function POST(request: Request) {
     const folder = (formData.get('folder') as string) || 'images';
 
     if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+      return ApiResponse.badRequest('No file provided');
     }
 
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json(
-        { error: 'Invalid file type. Only images are allowed.' },
-        { status: 400 },
-      );
+      return ApiResponse.badRequest('Invalid file type. Only images are allowed.');
     }
 
     // Validate file size (max 5MB)
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
-      return NextResponse.json({ error: 'File size exceeds 5MB limit' }, { status: 400 });
+      return ApiResponse.badRequest('File size exceeds 5MB limit');
     }
 
     const supabase = await createClient();
@@ -48,7 +45,7 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error('Storage upload error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return ApiResponse.error({ message: error.message, error });
     }
 
     // Get public URL
@@ -58,18 +55,15 @@ export async function POST(request: Request) {
       .from(process.env.NEXT_PUBLIC_SUPABASE_BUCKET_NAME!)
       .getPublicUrl(data.path);
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        path: data.path,
-        publicUrl,
-        fileName: file.name,
-        size: file.size,
-        type: file.type,
-      },
+    return ApiResponse.success({
+      path: data.path,
+      publicUrl,
+      fileName: file.name,
+      size: file.size,
+      type: file.type,
     });
   } catch (error) {
     console.error('Upload error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return ApiResponse.error({ message: 'Internal server error', error });
   }
 }
