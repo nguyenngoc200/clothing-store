@@ -1,10 +1,15 @@
 'use client';
 
-import React from 'react';
+import { LoadingDots } from '@/components/LoadingDots';
 import { cn } from '@/lib/utils';
-import { LoadingDots } from '../LoadingDots';
 
-export default function Loading({ className }: { className?: string }) {
+interface LoadingProps {
+  className?: string;
+}
+
+export default function Loading(props: LoadingProps) {
+  const { className } = props;
+
   return (
     <div className={cn('p-8 flex items-center justify-center', className)}>
       <div className="flex flex-col items-center gap-3 text-primary">
