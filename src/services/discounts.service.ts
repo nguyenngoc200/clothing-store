@@ -1,11 +1,10 @@
-import type { Discount, DiscountPayload, ApiResponse, ApiListResponse } from '@/types/database';
-
-const BASE_URL = '/api/discounts';
+import PATHS from '@/constants/paths';
+import type { ApiListResponse, ApiResponse, Discount, DiscountPayload } from '@/types/database';
 
 export const discountService = {
   // Get all discounts
   async getAll(): Promise<ApiListResponse<Discount>> {
-    const response = await fetch(BASE_URL);
+    const response = await fetch(PATHS.DISCOUNTS);
     const payload = await response.json();
 
     if (payload == null) return { data: [] } as ApiListResponse<Discount>;
@@ -21,13 +20,13 @@ export const discountService = {
 
   // Get a single discount by ID
   async getById(id: string): Promise<ApiResponse<Discount>> {
-    const response = await fetch(`${BASE_URL}/${id}`);
+    const response = await fetch(PATHS.DISCOUNT_BY_ID(id));
     return response.json();
   },
 
   // Create a new discount
   async create(payload: DiscountPayload): Promise<ApiResponse<Discount>> {
-    const response = await fetch(BASE_URL, {
+    const response = await fetch(PATHS.DISCOUNTS, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -39,7 +38,7 @@ export const discountService = {
 
   // Update a discount
   async update(id: string, payload: DiscountPayload): Promise<ApiResponse<Discount>> {
-    const response = await fetch(`${BASE_URL}/${id}`, {
+    const response = await fetch(PATHS.DISCOUNT_BY_ID(id), {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -51,7 +50,7 @@ export const discountService = {
 
   // Delete a discount (soft delete)
   async delete(id: string): Promise<ApiResponse<Discount>> {
-    const response = await fetch(`${BASE_URL}/${id}`, {
+    const response = await fetch(PATHS.DISCOUNT_BY_ID(id), {
       method: 'DELETE',
     });
     return response.json();
