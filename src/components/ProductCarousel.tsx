@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import {
   Carousel,
   CarouselContent,
@@ -60,9 +61,9 @@ export function ProductCarousel({
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold font-headline">{title}</h2>
           {showViewMore && (
-            <a href="/products" className="text-sm font-semibold underline hover:no-underline">
+            <Link href="/products" className="text-sm font-semibold underline hover:no-underline">
               Xem Thêm
-            </a>
+            </Link>
           )}
         </div>
       )}

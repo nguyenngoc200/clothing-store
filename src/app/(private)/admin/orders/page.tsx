@@ -16,6 +16,37 @@ import { orderSchema, type OrderFormData } from '@/schemas';
 import type { Order } from '@/types/database';
 import { usePagination } from '@/hooks/use-pagination';
 
+type InvoiceItem = {
+  product_title?: string;
+  quantity?: number;
+  unit_price?: number;
+  total_price?: number;
+  description?: string;
+};
+
+type InvoiceData = {
+  id?: string;
+  customer_name?: string;
+  address?: string;
+  shipping_code?: string;
+  order_date?: string;
+  items?: InvoiceItem[];
+  total_amount?: number;
+};
+
+type OrderProduct = {
+  product_id?: string;
+  quantity?: number;
+  unit_price?: number;
+  total_price?: number;
+  discount_id?: string | null;
+  advertising_cost?: number;
+  packaging_cost?: number;
+  shipping_cost?: number;
+  personnel_cost?: number;
+  rent_cost?: number;
+  freeship_cost?: number;
+};
 export default function OrdersPage() {
   const { orders, loading, error } = useOrders();
   const { customers } = useCustomers();
@@ -28,7 +59,7 @@ export default function OrdersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
-  const [invoiceData, setInvoiceData] = useState<any | null>(null);
+  const [invoiceData, setInvoiceData] = useState<InvoiceData | null>(null);
 
   const form = useForm<OrderFormData>({
     resolver: zodResolver(orderSchema),
@@ -60,24 +91,35 @@ export default function OrdersPage() {
         }
         // If creation succeeded, try to open invoice modal with created order
         try {
-          const created = (res?.data as any) ?? res;
-          const id = created?.id ?? created?.order_id ?? created;
+          const createdRaw: unknown = res?.data ?? res;
+          let id: string | number | undefined;
+          if (createdRaw && typeof createdRaw === 'object') {
+            const cr = createdRaw as Record<string, unknown>;
+            if ('id' in cr) id = cr['id'] as string | number;
+            else if ('order_id' in cr) id = cr['order_id'] as string | number;
+          } else if (typeof createdRaw === 'string' || typeof createdRaw === 'number') {
+            id = createdRaw as string | number;
+          }
+
           if (id) {
             const r = await fetch(`/api/orders/${id}`);
             const payload = await r.json();
             const orderFull = payload?.data ?? payload;
             // build invoice data
-            const items = (orderFull?.order_product || []).map((op: any) => ({
-              product_title: products.find((p) => p.id === op.product_id)?.title || op.product_id,
-              quantity: op.quantity ?? 1,
-              unit_price: op.unit_price ?? 0,
-              total_price: op.total_price ?? (op.quantity ?? 1) * (op.unit_price ?? 0),
-            }));
+            const items: InvoiceItem[] = (orderFull?.order_product || []).map(
+              (op: OrderProduct) => ({
+                product_title:
+                  products.find((p) => p.id === op.product_id)?.title || op.product_id || '',
+                quantity: op.quantity ?? 1,
+                unit_price: op.unit_price ?? 0,
+                total_price: op.total_price ?? (op.quantity ?? 1) * (op.unit_price ?? 0),
+              }),
+            );
             setInvoiceData({
-              id: orderFull.id,
+              id: String(orderFull?.id ?? id),
               customer_name:
                 customers.find((c) => c.id === orderFull.customer_id)?.full_name ??
-                orderFull.customer_id,
+                String(orderFull.customer_id ?? ''),
               address: orderFull.address,
               shipping_code: orderFull.shipping_code,
               order_date: orderFull.order_date,
@@ -86,7 +128,7 @@ export default function OrdersPage() {
             });
             setIsInvoiceOpen(true);
           }
-        } catch (err) {
+        } catch {
           // ignore invoice open errors
         }
       }
@@ -166,16 +208,17 @@ export default function OrdersPage() {
       const res = await fetch(`/api/orders/${order.id}`);
       const payload = await res.json();
       const orderFull = payload?.data ?? payload;
-      const items = (orderFull?.order_product || []).map((op: any) => ({
-        product_title: products.find((p) => p.id === op.product_id)?.title || op.product_id,
+      const items: InvoiceItem[] = (orderFull?.order_product || []).map((op: OrderProduct) => ({
+        product_title: products.find((p) => p.id === op.product_id)?.title || op.product_id || '',
         quantity: op.quantity ?? 1,
         unit_price: op.unit_price ?? 0,
         total_price: op.total_price ?? (op.quantity ?? 1) * (op.unit_price ?? 0),
       }));
       setInvoiceData({
-        id: orderFull.id,
+        id: String(orderFull.id ?? ''),
         customer_name:
-          customers.find((c) => c.id === orderFull.customer_id)?.full_name ?? orderFull.customer_id,
+          customers.find((c) => c.id === orderFull.customer_id)?.full_name ??
+          String(orderFull.customer_id ?? ''),
         address: orderFull.address,
         shipping_code: orderFull.shipping_code,
         order_date: orderFull.order_date,
