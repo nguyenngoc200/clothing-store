@@ -63,15 +63,16 @@ export function Pagination({
   };
 
   return (
-    <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200">
-      <div className="flex items-center gap-4">
-        <div className="text-sm text-gray-700">
+    <div className="flex flex-col md:flex-row items-center justify-between px-6 py-4 border-t border-gray-200 gap-3 md:gap-0">
+      {/* Left: info + page size */}
+      <div className="flex w-full md:w-auto flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-4">
+        <div className="text-sm text-gray-700 break-words">
           Hiển thị <span className="font-medium">{startItem}</span> đến{' '}
           <span className="font-medium">{endItem}</span> trong tổng{' '}
           <span className="font-medium">{totalItems}</span> kết quả
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ml-0 sm:ml-2">
           <span className="text-sm text-gray-700">Số dòng trên trang:</span>
           <Select
             value={String(pageSize)}
@@ -91,7 +92,8 @@ export function Pagination({
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      {/* Right: controls - wrap on small screens, keep right-aligned on md+ */}
+      <div className="flex w-full md:w-auto flex-wrap items-center gap-2 justify-center md:justify-end">
         <Button
           variant="outline"
           size="sm"
@@ -109,24 +111,27 @@ export function Pagination({
           Trước
         </Button>
 
-        <div className="flex items-center gap-1">
-          {getPageNumbers().map((page, index) =>
-            typeof page === 'number' ? (
-              <Button
-                key={index}
-                variant={currentPage === page ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => onPageChange(page)}
-                className="min-w-[40px]"
-              >
-                {page}
-              </Button>
-            ) : (
-              <span key={index} className="px-2 text-gray-500">
-                {page}
-              </span>
-            ),
-          )}
+        {/* Page numbers: scrollable on small screens */}
+        <div className="flex items-center gap-1 overflow-x-auto px-1">
+          <div className="flex items-center gap-1">
+            {getPageNumbers().map((page, index) =>
+              typeof page === 'number' ? (
+                <Button
+                  key={index}
+                  variant={currentPage === page ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => onPageChange(page)}
+                  className="min-w-[40px] flex-shrink-0"
+                >
+                  {page}
+                </Button>
+              ) : (
+                <span key={index} className="px-2 text-gray-500 flex-shrink-0">
+                  {page}
+                </span>
+              ),
+            )}
+          </div>
         </div>
 
         <Button
