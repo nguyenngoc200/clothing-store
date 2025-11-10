@@ -1,4 +1,5 @@
 import {
+  ChartColumnStacked,
   LayoutDashboard,
   UsersRound,
   FolderTree,
@@ -33,6 +34,12 @@ export const SIDEBAR_ITEMS = [
     title: 'Sản phẩm',
     url: '/admin/products',
     icon: Package,
+  },
+
+  {
+    title: 'Báo cáo',
+    url: '/admin/reports',
+    icon: ChartColumnStacked,
   },
 
   {
