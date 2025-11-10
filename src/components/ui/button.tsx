@@ -15,7 +15,7 @@ const buttonVariants = cva(
         default: 'bg-primary text-primary-foreground hover:bg-primary/90',
         destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90 ',
         outline: 'bg-background hover:bg-primary hover:text-accent-foreground',
-        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        secondary: 'text-neutral-700 bg-neutral-100 hover:bg-neutral-200',
         ghost: 'hover:bg-accent hover:text-accent-foreground neo-shadow-none ring-0 border-0',
         link: 'text-primary underline-offset-4 hover:underline',
         text: 'text-accent !px-0 !border-none outline-none !bg-transparent !shadow-none',
@@ -51,6 +51,7 @@ export interface ButtonProps
   dotColor?: string;
   href?: string;
   target?: string;
+  subClassName?: string;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -70,6 +71,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       dotColor = 'text-accent-foreground',
       href,
       target,
+      subClassName,
       ...props
     },
     ref,
@@ -88,7 +90,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         onClick={disabled ? undefined : props.onClick}
         {...props}
       >
-        <div className={cn('flex items-center', !loadingDots && 'gap-2')}>
+        <div className={cn('flex items-center', subClassName, !loadingDots && 'gap-2')}>
           {!loadingDots && children}
           {loadingDots && (
             <>
