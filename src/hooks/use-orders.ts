@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { orderService } from '@/services/orders.service';
+import { productKeys } from '@/hooks/use-products';
 import type { OrderPayload } from '@/types/database';
 
 // Query keys
@@ -52,6 +53,8 @@ export function useCreateOrder() {
     mutationFn: (payload: OrderPayload) => orderService.create(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
+      // Also refresh products so status changes from order creation are visible immediately
+      queryClient.invalidateQueries({ queryKey: productKeys.lists() });
     },
   });
 }
@@ -65,6 +68,8 @@ export function useUpdateOrder() {
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: orderKeys.detail(variables.id) });
       queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
+      // Ensure products list is refreshed when an order update changes product statuses
+      queryClient.invalidateQueries({ queryKey: productKeys.lists() });
     },
   });
 }
