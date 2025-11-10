@@ -1,39 +1,40 @@
 'use client';
 
-import SectionSettings from '@/components/admin/SectionSettings';
+import CalculationSettings from '@/components/admin/settings/tabs/calculation/CalculationSettingsFixed';
+import ProductCostSettings from '@/components/admin/settings/tabs/ProductCostSettings';
+import SectionSettings from '@/components/admin/settings/tabs/SectionSettings';
+import SettingsHeader from '@/components/SettingsHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import SETTINGS, { SETTINGS_TABS } from '@/constants/settings';
 
 export default function AdminSettingsPage() {
   return (
-    <div className="container mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Cài đặt</h1>
-      </div>
+    <>
+      <SettingsHeader />
 
       <div className="mb-6">
-        <Tabs defaultValue="homepage">
-          <TabsList>
-            <TabsTrigger value="homepage">Cài đặt Trang chủ</TabsTrigger>
-            <TabsTrigger value="calculation">Cài đặt Tính toán</TabsTrigger>
+        <Tabs defaultValue={SETTINGS.HOMEPAGE.tab}>
+          <TabsList className="w-full justify-start overflow-x-auto flex-wrap h-auto gap-1">
+            {SETTINGS_TABS.map((t) => (
+              <TabsTrigger key={t.value} value={t.value}>
+                {t.label}
+              </TabsTrigger>
+            ))}
           </TabsList>
 
-          <TabsContent value="homepage">
-            <section>
-              <SectionSettings />
-            </section>
+          <TabsContent value={SETTINGS.HOMEPAGE.tab}>
+            <SectionSettings />
           </TabsContent>
 
-          <TabsContent value="calculation">
-            <section>
-              <h2 className="text-lg font-semibold mb-4">Cài đặt Tính toán</h2>
-              <p className="text-sm text-neutral-600">
-                Ở đây bạn có thể thiết lập các tham số tính toán (VAT, tỷ lệ chiết khấu, v.v.).
-              </p>
-              {/* Add fields/forms as needed */}
-            </section>
+          <TabsContent value={SETTINGS.CALCULATION.tab}>
+            <CalculationSettings />
+          </TabsContent>
+
+          <TabsContent value={SETTINGS.PRODUCT_COST.tab}>
+            <ProductCostSettings />
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </>
   );
 }
