@@ -1,35 +1,43 @@
-import Link from 'next/link';
 import Image from 'next/image';
-import Logo from '@/components/Logo';
+import Link from 'next/link';
+
 import { HeroCarousel } from '@/components/HeroCarousel';
+import Logo from '@/components/Logo';
 import { ProductCarousel } from '@/components/ProductCarousel';
-import SETTINGS from '@/constants/settings';
-import { getSettings } from '@/services/settings.service';
-import { productServerService } from '@/services/products.server.service';
 import DEFAULT_SECTIONS from '@/constants/homepage';
-import Section, {
-  IconicData,
+import { getServerCookiesString } from '@/lib/getCookies';
+import { homepageService } from '@/services/homepage.service';
+import { productServerService } from '@/services/products.server.service';
+import type { Product } from '@/types/database';
+import {
   AdvertisementData,
-  HeroData,
   BrandData,
+  CategoryData,
+  HeroData,
+  IconicData,
+  ProductsData,
   ShoesData,
   StylingData,
-  CategoryData,
-  ProductsData,
   WhatsHotData,
 } from '@/types/homepage';
-import type { Product } from '@/types/database';
 
 export default async function PublicHome() {
   // Load homepage settings via service (server component)
-  const rows = await getSettings(SETTINGS.HOMEPAGE.tab);
-  const payload = rows?.[0]?.data as { sections?: Section[] } | undefined;
-  const sections: Section[] = Array.isArray(payload?.sections)
-    ? (payload!.sections as Section[])
-    : DEFAULT_SECTIONS;
+  const rowsRes = await homepageService.getAll();
 
-  const byId = new Map<string, Section['data'] | undefined>();
-  sections.forEach((s: Section) => byId.set(s.section_id, s.data));
+  const rowsRaw = rowsRes?.data || [];
+  const rows = rowsRaw as Array<{ tab: string; data: { data: unknown } }> | [];
+
+  // Get cookies header for server requests
+  const cookieHeader = await getServerCookiesString();
+
+  // Build a map of tab -> data for per-tab rows
+  const tabMap = new Map<string, unknown>();
+  for (const r of rows) {
+    if (r && typeof r === 'object' && 'tab' in r) {
+      tabMap.set(String(r.tab), r.data?.data);
+    }
+  }
 
   // Helper to get default value from DEFAULT_SECTIONS
   const getDefault = (sectionId: string) => {
@@ -38,20 +46,24 @@ export default async function PublicHome() {
   };
 
   const advertisement =
-    (byId.get('advertisement') as AdvertisementData | undefined) ||
+    (tabMap.get('advertisement') as AdvertisementData | undefined) ||
     (getDefault('advertisement') as AdvertisementData);
-  const hero = (byId.get('hero') as HeroData | undefined) || (getDefault('hero') as HeroData);
+
+  const hero = (tabMap.get('hero') as HeroData | undefined) || (getDefault('hero') as HeroData);
+
   const categories =
-    (byId.get('categories') as CategoryData | undefined) ||
+    (tabMap.get('categories') as CategoryData | undefined) ||
     (getDefault('categories') as CategoryData);
-  const productIds = byId.get('products') as ProductsData | undefined;
-  const brand = (byId.get('brand') as BrandData | undefined) || (getDefault('brand') as BrandData);
-  const whatshotIds = byId.get('whatshot') as WhatsHotData | undefined;
+  const productIds = tabMap.get('products') as ProductsData | undefined;
+  const brand =
+    (tabMap.get('brand') as BrandData | undefined) || (getDefault('brand') as BrandData);
+  const whatshotIds = tabMap.get('whatshot') as WhatsHotData | undefined;
   const iconic =
-    (byId.get('iconic') as IconicData | undefined) || (getDefault('iconic') as IconicData);
-  const shoes = (byId.get('shoes') as ShoesData | undefined) || (getDefault('shoes') as ShoesData);
+    (tabMap.get('iconic') as IconicData | undefined) || (getDefault('iconic') as IconicData);
+  const shoes =
+    (tabMap.get('shoes') as ShoesData | undefined) || (getDefault('shoes') as ShoesData);
   const styling =
-    (byId.get('styling') as StylingData | undefined) ||
+    (tabMap.get('styling') as StylingData | undefined) ||
     ({
       title: 'GIẢM NGAY 20% CHO SẢN PHẨM ĐẦU TIÊN KHI',
       url: 'https://www.instagram.com/buidoi_highhand/',
@@ -62,19 +74,19 @@ export default async function PublicHome() {
   // Fetch featured products by IDs using server service
   const featuredProducts: Product[] =
     productIds && Array.isArray(productIds) && productIds.length > 0
-      ? await productServerService.getByIds(productIds)
+      ? await productServerService.getByIds({ ids: productIds, cookieHeader })
       : [];
 
   // Fetch what's hot products by IDs using server service
   const whatshotProducts: Product[] =
     whatshotIds && Array.isArray(whatshotIds) && whatshotIds.length > 0
-      ? await productServerService.getByIds(whatshotIds)
+      ? await productServerService.getByIds({ ids: whatshotIds, cookieHeader })
       : [];
 
   // Fetch styling products by IDs using server service
   const shoesProducts: Product[] =
     shoes && Array.isArray(shoes) && shoes.length > 0
-      ? await productServerService.getByIds(shoes)
+      ? await productServerService.getByIds({ ids: shoes as string[], cookieHeader })
       : [];
 
   return (
@@ -86,10 +98,10 @@ export default async function PublicHome() {
 
       {/* Hero Banner - Featured Collection */}
       <section className="relative bg-neutral-100 overflow-hidden">
-        <div className="container mx-auto">
+        <div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 py-8">
             {/* Main Hero Carousel (Box One) */}
-            <div className="lg:col-span-2 relative aspect-[16/10] lg:aspect-[16/9] bg-neutral-200 rounded-lg overflow-hidden group">
+            <div className="lg:col-span-2 relative  bg-neutral-200 rounded-lg overflow-hidden group">
               <HeroCarousel
                 images={hero?.boxOne?.images || []}
                 title={hero?.boxOne?.title}
@@ -100,7 +112,7 @@ export default async function PublicHome() {
             </div>
 
             {/* Side Carousel (Box Two) */}
-            <div className="relative aspect-[4/3] lg:aspect-auto bg-neutral-200 rounded-lg overflow-hidden">
+            <div className="relative  bg-neutral-200 rounded-lg overflow-hidden">
               <HeroCarousel
                 images={hero?.boxTwo?.images || []}
                 title={hero?.boxTwo?.title}
@@ -311,105 +323,6 @@ export default async function PublicHome() {
             {styling?.buttonText}
             <span aria-hidden="true">→</span>
           </Link>
-        </div>
-      </section>
-
-      {/* Footer Navigation Preview */}
-      <section className="py-12 bg-neutral-900 text-white">
-        <div className="container mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="font-bold mb-4 text-sm uppercase tracking-wide">Sản Phẩm</h3>
-              <ul className="space-y-2 text-sm text-neutral-400">
-                <li>
-                  <Link href="/shoes" className="hover:text-white transition">
-                    Giày
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/clothing" className="hover:text-white transition">
-                    Quần áo
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/accessories" className="hover:text-white transition">
-                    Phụ kiện
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-bold mb-4 text-sm uppercase tracking-wide">Thể Thao</h3>
-              <ul className="space-y-2 text-sm text-neutral-400">
-                <li>
-                  <Link href="/running" className="hover:text-white transition">
-                    Chạy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/tennis" className="hover:text-white transition">
-                    Quần vợt
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/gym" className="hover:text-white transition">
-                    Gym & Training
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-bold mb-4 text-sm uppercase tracking-wide">Hỗ Trợ</h3>
-              <ul className="space-y-2 text-sm text-neutral-400">
-                <li>
-                  <Link href="/help" className="hover:text-white transition">
-                    Trợ Giúp
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/returns" className="hover:text-white transition">
-                    Trả Hàng & Hoàn Tiền
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/shipping" className="hover:text-white transition">
-                    Giao hàng
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-bold mb-4 text-sm uppercase tracking-wide">Theo Dõi Chúng Tôi</h3>
-              <div className="flex gap-3">
-                <a
-                  href="#"
-                  className="w-10 h-10 bg-neutral-800 rounded-full flex items-center justify-center hover:bg-neutral-700 transition"
-                >
-                  <span className="sr-only">Facebook</span>
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
-                  </svg>
-                </a>
-                <a
-                  href="#"
-                  className="w-10 h-10 bg-neutral-800 rounded-full flex items-center justify-center hover:bg-neutral-700 transition"
-                >
-                  <span className="sr-only">Instagram</span>
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-                    <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37zm1.5-4.87h.01" />
-                  </svg>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-12 pt-8 border-t border-neutral-800 text-center text-sm text-neutral-500">
-            <p>© 2025 Quinn & BUIDOI. All rights reserved.</p>
-          </div>
         </div>
       </section>
     </div>
