@@ -3,24 +3,23 @@
 import type { User } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 
+import MobileMenu from '@/components/header/MobileMenu';
 import Logo from '@/components/Logo';
-import { Search, Bell, Menu } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { HEADER_MENU_ITEMS, type HeaderMenuItem } from '@/constants/header';
 import { ROUTES } from '@/constants/routes';
-import { Button } from '@/components/ui/button';
-import MobileMenu from '@/components/header/MobileMenu';
 import { createClient } from '@/lib/supabase/client';
-import AuthService from '@/services/auth';
+import AuthService from '@/services/auth.service';
+import { Bell, Menu } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Input } from '../ui/input';
+// navigation links will replace the search input
 
 export default function Header({ serverUser }: { serverUser?: User | null }) {
   const [user, setUser] = useState<User | null>(serverUser ?? null);
@@ -45,10 +44,8 @@ export default function Header({ serverUser }: { serverUser?: User | null }) {
     if (typeof window !== 'undefined') window.location.href = ROUTES.HOME;
   };
 
-  const items: HeaderMenuItem[] = HEADER_MENU_ITEMS;
-
   return (
-    <header className="app-header w-full border-b border-slate-200/60 dark:border-slate-800/60 bg-white/50 dark:bg-[#0b0b0b]/50 backdrop-blur">
+    <header className="app-header container w-full border-b border-slate-200/60 dark:border-slate-800/60 bg-white/50 dark:bg-[#0b0b0b]/50 backdrop-blur">
       <div className="w-full flex items-center justify-between gap-4 px-0 md:px-4 h-14">
         <div className="flex items-center justify-between md:justify-start gap-3 flex-1">
           {/* Mobile: menu button (visible < md) */}
@@ -66,17 +63,22 @@ export default function Header({ serverUser }: { serverUser?: User | null }) {
 
           <Logo alt="Logo" href={ROUTES.HOME} className="mr-5" />
 
-          {/* Search: only visible on md and up */}
-          <div className="relative w-full max-w-md hidden md:block">
-            <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search size={16} className="text-slate-400" />
-            </span>
-
-            <Input
-              aria-label="Search"
-              placeholder="Tìm kiếm..."
-              className="block w-full pl-10 pr-3 py-2 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#070707] text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400"
-            />
+          {/* Nav: visible on md and up (replaces search) */}
+          <div className="w-full max-w-md hidden md:block">
+            <nav className="flex items-center gap-4">
+              <Link href="/about" className="text-sm font-medium hover:underline">
+                Về chúng tôi
+              </Link>
+              <Link href="/contact" className="text-sm font-medium hover:underline">
+                Liên hệ
+              </Link>
+              <Link href="/posts" className="text-sm font-medium hover:underline">
+                Bài viết
+              </Link>
+              <Link href="/products" className="text-sm font-medium hover:underline">
+                Sản phẩm
+              </Link>
+            </nav>
           </div>
         </div>
 
@@ -157,7 +159,6 @@ export default function Header({ serverUser }: { serverUser?: User | null }) {
 
       {/* Mobile sheet for menu */}
       <MobileMenu
-        items={items}
         user={user}
         menuOpen={menuOpen}
         setMenuOpen={setMenuOpen}

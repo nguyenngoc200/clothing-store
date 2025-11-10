@@ -5,19 +5,18 @@ import type { User } from '@supabase/supabase-js';
 import Logo from '@/components/Logo';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetFooter, SheetHeader } from '@/components/ui/sheet';
-import type { HeaderMenuItem } from '@/constants/header';
 import { ROUTES } from '@/constants/routes';
 import { Power } from 'lucide-react';
+import Link from 'next/link';
 
 type Props = {
-  items: HeaderMenuItem[];
   user: User | null;
   menuOpen: boolean;
   setMenuOpen: (open: boolean) => void;
   onSignOut: () => Promise<void>;
 };
 
-export default function MobileMenu({ items, user, menuOpen, setMenuOpen, onSignOut }: Props) {
+export default function MobileMenu({ user, menuOpen, setMenuOpen, onSignOut }: Props) {
   return (
     <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
       <SheetContent side="left" className="p-0 gap-0">
@@ -29,17 +28,35 @@ export default function MobileMenu({ items, user, menuOpen, setMenuOpen, onSignO
 
         <div className="p-4 flex flex-col h-full">
           <nav className="flex flex-col gap-2">
-            {items.map((item) => (
-              <a
-                key={item.title}
-                href={item.url}
-                className="flex items-center gap-3 rounded-md p-2 hover:bg-slate-100"
-                onClick={() => setMenuOpen(false)}
-              >
-                <item.icon />
-                <span>{item.title}</span>
-              </a>
-            ))}
+            {/* Mirror desktop primary links */}
+            <Link
+              href="/about"
+              className="rounded-md p-3 text-base hover:bg-slate-100"
+              onClick={() => setMenuOpen(false)}
+            >
+              Về chúng tôi
+            </Link>
+            <Link
+              href="/contact"
+              className="rounded-md p-3 text-base hover:bg-slate-100"
+              onClick={() => setMenuOpen(false)}
+            >
+              Liên hệ
+            </Link>
+            <Link
+              href="/posts"
+              className="rounded-md p-3 text-base hover:bg-slate-100"
+              onClick={() => setMenuOpen(false)}
+            >
+              Bài viết
+            </Link>
+            <Link
+              href="/products"
+              className="rounded-md p-3 text-base hover:bg-slate-100"
+              onClick={() => setMenuOpen(false)}
+            >
+              Sản phẩm
+            </Link>
           </nav>
 
           <SheetFooter className="px-2 py-4 border-t border-foreground/20">
